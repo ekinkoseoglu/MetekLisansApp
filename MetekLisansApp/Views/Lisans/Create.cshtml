@@ -98,6 +98,7 @@
             <div class="col-md-4">
                 <div class="position-relative">
                     <i class="fas fa-building input-icon"></i>
+                        <label for="FirmaId" class="form-label">Firma</label>
                     <select class="form-select" name="Input.FirmaId" id="FirmaId" required @(readOnly ? "disabled" : "")>
                         <option value="">Firma Seçiniz</option>
                         @foreach (var firma in Model.Firmalar)
@@ -112,6 +113,7 @@
             <div class="col-md-4">
                 <div class="position-relative">
                     <i class="fas fa-microchip input-icon"></i>
+                        <label for="MachineCode" class="form-label">Makine Kodu</label>
                     <input type="text" class="form-control" name="Input.MachineCode" id="MachineCode"
                            value="@input.MachineCode" placeholder="Makine Kodu" required @(readOnly ? "readonly" : "") />
                 </div>
@@ -119,6 +121,7 @@
             <div class="col-md-4">
                 <div class="position-relative">
                     <i class="fas fa-calendar-day input-icon"></i>
+                        <label for="LisansBitisTarihi" class="form-label">Lisans Bitiş Tarihi</label>
                     <input type="date" class="form-control" name="Input.LisansBitisTarihi"
                            value="@(input.LisansBitisTarihi != default(DateTime) ? input.LisansBitisTarihi.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd"))"
                            id="LisansBitisTarihi" required @(readOnly ? "readonly" : "") />
