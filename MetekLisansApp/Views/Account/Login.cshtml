@@ -163,7 +163,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                  if(data.rol == "User"){
+                  if(data.rol == "User" || data.rol == "Editor" ){
                    window.location.href = '@Url.Action("Index", "LisansGecmis")';
                   }else{
 
