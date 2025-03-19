@@ -3,6 +3,7 @@ using System;
 using MetekLisansApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MetekLisansApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250319064304_AddRolesToEkranAndMenu")]
+    partial class AddRolesToEkranAndMenu
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
@@ -35,6 +38,9 @@ namespace MetekLisansApp.Migrations
 
                     b.Property<int>("MenuId")
                         .HasColumnType("INTEGER");
+
+                    b.PrimitiveCollection<string>("Roller")
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("TEXT");
@@ -71,11 +77,10 @@ namespace MetekLisansApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("KullaniciAdi")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("INTEGER");
 
-                    b.Property<string>("Role")
+                    b.Property<string>("KullaniciAdi")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -134,6 +139,9 @@ namespace MetekLisansApp.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.PrimitiveCollection<string>("Roller")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("SiraNo")

@@ -163,10 +163,12 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    localStorage.setItem('kullaniciId', data.kullaniciId);
-                    localStorage.setItem('isAdmin', data.isAdmin.toString().toLowerCase());
+                  if(data.rol == "User"){
+                   window.location.href = '@Url.Action("Index", "LisansGecmis")';
+                  }else{
 
                     window.location.href = '@Url.Action("Create", "Lisans")';
+                  }
                 } else {
                     document.getElementById('errorMessage').style.display = 'block';
                     document.getElementById('errorList').innerHTML =

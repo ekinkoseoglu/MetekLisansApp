@@ -6,5 +6,6 @@
         public List<Firma> Firmalar { get; set; }
         public List<Menu> Menuler { get; set; }
         public List<Ekran> Ekranlar { get; set; }
+        public bool IsReadOnly { get; set; } = false;
     }
 }

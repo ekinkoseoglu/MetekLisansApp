@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using MetekLisansApp.Data;
 using MetekLisansApp.Models;
+using MetekLisansApp.Models.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -10,7 +11,6 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using MetekLisansApp.Models.DTOs;
 
 namespace MetekLisansApp.Controllers
 {
@@ -28,12 +28,15 @@ namespace MetekLisansApp.Controllers
             var menuler = await _context.Menuler.OrderBy(m => m.SiraNo).ToListAsync();
             var ekranlar = await _context.Ekranlar.ToListAsync();
 
+            var userRole = HttpContext.Session.GetString("UserRole") ?? "User";
+
             var viewModel = new LisansCreateCompositeViewModel
             {
                 Input = new LisansCreateInputModel(),
                 Firmalar = firmalar,
                 Menuler = menuler,
-                Ekranlar = ekranlar
+                Ekranlar = ekranlar,
+                IsReadOnly = userRole != "Admin" 
             };
             return View(viewModel);
         }
@@ -48,7 +51,7 @@ namespace MetekLisansApp.Controllers
 
             var seciliDegerler = JsonSerializer.Deserialize<SeciliDegerlerDto>(lisans.SeciliDegerler);
             List<int> selectedEkranNo = new List<int>();
-            if (!string.IsNullOrEmpty(seciliDegerler.SelectedEkranNo))
+            if (seciliDegerler != null && !string.IsNullOrEmpty(seciliDegerler.SelectedEkranNo))
             {
                 selectedEkranNo = seciliDegerler.SelectedEkranNo
                                     .Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -64,39 +67,32 @@ namespace MetekLisansApp.Controllers
             {
                 Id = lisans.Id,
                 FirmaId = lisans.FirmaId,
-                MachineCode = seciliDegerler.MachineCode,
-                LisansBitisTarihi = DateTime.ParseExact(seciliDegerler.LisansBitisTarihi, "dd.MM.yyyy", CultureInfo.InvariantCulture),
+                MachineCode = seciliDegerler?.MachineCode ?? string.Empty,
+                LisansBitisTarihi = DateTime.ParseExact(seciliDegerler?.LisansBitisTarihi ?? "01.01.0001", "dd.MM.yyyy", CultureInfo.InvariantCulture),
                 SelectedEkranNo = selectedEkranNo,
                 KullaniciId = lisans.OlusturanUserId
             };
+
+            var userRole = HttpContext.Session.GetString("UserRole") ?? "User";
 
             var viewModel = new LisansCreateCompositeViewModel
             {
                 Input = inputModel,
                 Firmalar = firmalar,
                 Menuler = menuler,
-                Ekranlar = ekranlar
+                Ekranlar = ekranlar,
+                IsReadOnly = userRole != "Admin"
             };
 
             return View("Create", viewModel);
         }
 
+
         [HttpPost]
         public async Task<IActionResult> Create(LisansCreateCompositeViewModel model)
         {
             var input = model.Input;
-            string ekranNoList;
-          
-            if (input.SelectedEkranNo != null )
-            {
-                 ekranNoList = string.Join(",", input.SelectedEkranNo);
-
-            }
-            else
-            {
-                ekranNoList = "";
-            }
-
+            string ekranNoList = input.SelectedEkranNo != null ? string.Join(",", input.SelectedEkranNo) : "";
             var seciliDegerlerDto = new
             {
                 SelectedEkranNo = ekranNoList,
@@ -105,8 +101,26 @@ namespace MetekLisansApp.Controllers
             };
             string jsonBody = JsonSerializer.Serialize(seciliDegerlerDto);
 
+
+
+            //Http gönderme işlemi
+            //var client = new HttpClient();
+            //var request = new HttpRequestMessage
+            //{
+            //    Method = HttpMethod.Post,
+            //    RequestUri = new Uri("http://localhost:5000/api/Lisans/GenerateLisansKod"),
+            //    Content = new StringContent(jsonBody, Encoding.UTF8, "application/json")
+            //};
+            //var response = await client.SendAsync(request);
+            //if (!response.IsSuccessStatusCode)
+            //{
+            //    ModelState.AddModelError("", "Lisans kodu oluşturulurken bir hata oluştu.");
+            //    return RedirectToAction("Create");
+            //}
+            //dummyLisansKod = await response.Content.ReadAsStringAsync();
+
             string dummyLisansKod = "kjhkjkljh2lkjhlkjhlk2jh";
-            string lisansKodu = dummyLisansKod;
+
 
             var firma = await _context.Firmalar.FirstOrDefaultAsync(f => f.Id == input.FirmaId);
             if (firma == null)
@@ -114,7 +128,6 @@ namespace MetekLisansApp.Controllers
                 ModelState.AddModelError("", "Seçilen firma bulunamadı.");
                 return RedirectToAction("Create");
             }
-            
 
             if (input.Id.HasValue)
             {
@@ -127,13 +140,13 @@ namespace MetekLisansApp.Controllers
                 existingLisans.FirmaId = firma.Id;
                 existingLisans.LisansVerilmeTarih = DateTime.Now;
                 existingLisans.LisansBitisTarih = input.LisansBitisTarihi;
-                existingLisans.LisansKodu = lisansKodu;
-                existingLisans.OlusturanUserId = model.Input.KullaniciId;
+                existingLisans.LisansKodu = dummyLisansKod;
+                existingLisans.OlusturanUserId = input.KullaniciId;
                 existingLisans.SeciliDegerler = jsonBody;
 
                 _context.Lisanslar.Update(existingLisans);
                 await _context.SaveChangesAsync();
-                TempData["LisansKodu"] = lisansKodu;
+                TempData["LisansKodu"] = dummyLisansKod;
                 return RedirectToAction("Create");
             }
             else
@@ -144,14 +157,14 @@ namespace MetekLisansApp.Controllers
                     FirmaId = firma.Id,
                     LisansVerilmeTarih = DateTime.Now,
                     LisansBitisTarih = input.LisansBitisTarihi,
-                    LisansKodu = lisansKodu,
-                    OlusturanUserId = model.Input.KullaniciId,
+                    LisansKodu = dummyLisansKod,
+                    OlusturanUserId = input.KullaniciId,
                     SeciliDegerler = jsonBody
                 };
 
                 await _context.Lisanslar.AddAsync(lisans);
                 await _context.SaveChangesAsync();
-                TempData["LisansKodu"] = lisansKodu;
+                TempData["LisansKodu"] = dummyLisansKod;
                 return RedirectToAction("Create");
             }
         }

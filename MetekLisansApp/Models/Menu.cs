@@ -12,5 +12,6 @@ namespace MetekLisansApp.Models
         public int SiraNo { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
+
     }
 }

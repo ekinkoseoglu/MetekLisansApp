@@ -13,14 +13,12 @@ namespace MetekLisansApp.Controllers
             _context = context;
         }
 
-        // GET: Ekran/Create – Ekran ekleme formu, Menü listesini view'e gönderiyoruz
         public IActionResult Create()
         {
             ViewData["Menuler"] = _context.Menuler.OrderBy(m => m.Id).ToList();
             return View();
         }
 
-        // POST: Ekran/Create – Formdan gelen verilerle ekran ekleme işlemi
         [HttpPost]
         public async Task<IActionResult> Create(Ekran ekran)
         {

@@ -12,6 +12,8 @@ namespace MetekLisansApp.Models
         [Required]
         public string Sifre { get; set; }
 
-        public bool IsAdmin { get; set; }
+        // Rol bilgisi: "Admin", "Editor" veya "User"
+        [Required]
+        public string Role { get; set; }
     }
 }

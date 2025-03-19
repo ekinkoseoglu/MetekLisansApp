@@ -204,13 +204,10 @@
                 const end = start + itemsPerPage;
                 const paginatedItems = filteredData.slice(start, end);
 
-                // Gerekli satırları göster
                 paginatedItems.forEach(row => row.style.display = '');
 
-                // Sonuç yoksa uyarı göster
                 noResults.style.display = filteredData.length > 0 ? 'none' : 'block';
 
-                // Pagination'ı güncelle
                 updatePagination();
             }
 
@@ -218,15 +215,12 @@
                 const totalPages = Math.ceil(filteredData.length / itemsPerPage);
                 pagination.innerHTML = '';
 
-                // Previous butonu
                 pagination.appendChild(createPageItem('←', currentPage > 1 ? currentPage - 1 : null));
 
-                // Sayfa numaraları
                 for(let i = 1; i <= totalPages; i++) {
                     pagination.appendChild(createPageItem(i, i));
                 }
 
-                // Next butonu
                 pagination.appendChild(createPageItem('→', currentPage < totalPages ? currentPage + 1 : null));
             }
 

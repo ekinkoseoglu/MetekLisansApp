@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var userRole = HttpContextAccessor.HttpContext.Session.GetString("UserRole") ?? "User";
+}
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="utf-8" />
@@ -47,17 +52,25 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-custom">
             <div class="container-fluid">
-                
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Firma" asp-action="Index">Firmalar</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Lisans" asp-action="Create">Lisans Ekle</a>
-                        </li>
-                        <li class="nav-item">
+                        @if (userRole == "Admin" || userRole == "Editor")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Firma" asp-action="Index">Firmalar</a>
+                            </li>
+                        }
+                        @if (userRole == "Admin")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-controller="Lisans" asp-action="Create">Lisans Ekle</a>
+                            </li>
+                        }
+                        <li class="nav-item flex-grow-1">
                             <a class="nav-link" asp-area="" asp-controller="LisansGecmis" asp-action="Index">Lisans Geçmiş</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Login" onclick="clearLocalStorage()">Çıkış</a>
                         </li>
                     </ul>
                 </div>
@@ -70,41 +83,16 @@
         </main>
     </div>
     @RenderSection("scripts", required: false)
-
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2025 - MetekLisansApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
-
-    <!-- jQuery kütüphanesi (DataTables için gereklidir) -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
-            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <!-- DataTables Scripts-->
-    <script src="~/lib/plugins/datatables/jquery.dataTables.min.js"></script>
-    <script src="~/lib/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-    <script src="~/lib/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-    <script src="~/lib/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-    <script src="~/lib/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-    <script src="~/lib/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-    <script src="~/lib/plugins/jszip/jszip.min.js"></script>
-    <script src="~/lib/plugins/pdfmake/pdfmake.min.js"></script>
-    <script src="~/lib/plugins/pdfmake/vfs_fonts.js"></script>
-    <script src="~/lib/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-    <script src="~/lib/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-    <script src="~/lib/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
-    <script src="~/lib/plugins/datatables-select/js/dataTables.select.min.js"></script>
-    <script src="~/lib/plugins/datatables-select/js/select.bootstrap4.min.js"></script>
-    <script src="~/plugins/datatables-searchpanes/dataTables.searchPanes.min.js"></script>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
     <script>
-        window.addEventListener('beforeunload', function (e) {
-            // Tüm LocalStorage'i temizle
+        function clearLocalStorage() {
             localStorage.clear();
-        });
+        }
     </script>
 </body>
 </html>
+
