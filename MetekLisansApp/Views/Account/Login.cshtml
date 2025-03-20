@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
     <link href="/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
- 
+
     <style>
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -29,7 +29,7 @@
             transition: transform 0.3s ease;
         }
 
-            
+
         .form-control {
             height: 50px;
             border-radius: 10px;
@@ -83,7 +83,7 @@
             animation: fadeIn 0.5s ease-in;
         }
 
-       
+
 
         {
             opacity: 0;
@@ -100,55 +100,56 @@
 </head>
 <body>
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8 col-lg-6">
-                <div class="login-card fade-in p-4 p-sm-5">
-                    <div class="text-center mb-5">
-                        <h2 class="mb-3 fw-bold text-dark">Hesabınıza Giriş Yapın</h2>
-                        <p class="text-muted">Devam etmek için lütfen bilgilerinizi girin</p>
+        <div class="d-flex justify-content-center">
+
+            <div class="login-card fade-in p-4 p-sm-5">
+                <div class="text-center mb-5">
+                    <h2 class="mb-3 fw-bold text-dark">Hesabınıza Giriş Yapın</h2>
+                    <p class="text-muted">Devam etmek için lütfen bilgilerinizi girin</p>
+                </div>
+
+                @using (Html.BeginForm("Login", "Account", FormMethod.Post, new { id = "loginForm" }))
+                {
+                    <div class="mb-4 position-relative">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="text"
+                               class="form-control form-control-lg ps-5"
+                               name="kullaniciAdi"
+                               placeholder="Kullanıcı Adı"
+                               required>
                     </div>
 
-                    @using (Html.BeginForm("Login", "Account", FormMethod.Post, new { id = "loginForm" }))
-                    {
-                        <div class="mb-4 position-relative">
-                            <i class="fas fa-user input-icon"></i>
-                            <input type="text"
-                                   class="form-control form-control-lg ps-5"
-                                   name="kullaniciAdi"
-                                   placeholder="Kullanıcı Adı"
-                                   required>
-                        </div>
+                    <div class="mb-4 position-relative">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input type="password"
+                               class="form-control form-control-lg ps-5"
+                               name="sifre"
+                               placeholder="Şifre"
+                               required>
+                    </div>
 
-                        <div class="mb-4 position-relative">
-                            <i class="fas fa-lock input-icon"></i>
-                            <input type="password"
-                                   class="form-control form-control-lg ps-5"
-                                   name="sifre"
-                                   placeholder="Şifre"
-                                   required>
-                        </div>
+                    <div class="d-grid mb-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-sign-in-alt me-2"></i>Giriş Yap
+                        </button>
+                    </div>
+                }
 
-                        <div class="d-grid mb-4">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-sign-in-alt me-2"></i>Giriş Yap
-                            </button>
-                        </div>
-                    }
-
-                    <div id="errorMessage" class="alert alert-danger mt-4" role="alert" style="display:none;">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            <div>
-                                <h5 class="alert-heading mb-2">Giriş Başarısız!</h5>
-                                <ul class="mb-0 ps-3" id="errorList"></ul>
-                            </div>
+                <div id="errorMessage" class="alert alert-danger mt-4" role="alert" style="display:none;">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <div>
+                            <h5 class="alert-heading mb-2">Giriş Başarısız!</h5>
+                            <ul class="mb-0 ps-3" id="errorList"></ul>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+    <script src="
+https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/dist/js.cookie.min.js
+"></script>
     <script>
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -163,6 +164,8 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    Cookies.set('isAuthanticated', true);
+
                   if(data.rol == "User" || data.rol == "Editor" ){
                    window.location.href = '@Url.Action("Index", "LisansGecmis")';
                   }else{

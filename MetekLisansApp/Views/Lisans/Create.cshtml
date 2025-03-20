@@ -1,4 +1,6 @@
-﻿@model MetekLisansApp.Models.LisansCreateCompositeViewModel
+﻿@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@model MetekLisansApp.Models.LisansCreateCompositeViewModel
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Lisans Oluşturma";
@@ -99,7 +101,8 @@
                 <div class="position-relative">
                     <i class="fas fa-building input-icon"></i>
                         <label for="FirmaId" class="form-label">Firma</label>
-                    <select class="form-select" name="Input.FirmaId" id="FirmaId" required @(readOnly ? "disabled" : "")>
+                    <select class="form-select" name="Input.FirmaId" id="FirmaId" required @(readOnly
+                    ? "disabled" : "")>
                         <option value="">Firma Seçiniz</option>
                         @foreach (var firma in Model.Firmalar)
                         {

@@ -15,6 +15,12 @@ namespace MetekLisansApp.Controllers
 
         public IActionResult Create()
         {
+            var userRole = HttpContext.Session.GetString("isAuthenticated");
+            if (userRole == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             ViewData["Menuler"] = _context.Menuler.OrderBy(m => m.Id).ToList();
             return View();
         }
@@ -22,6 +28,12 @@ namespace MetekLisansApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Ekran ekran)
         {
+            var userRole = HttpContext.Session.GetString("isAuthenticated");
+            if (userRole == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
             if (ModelState.IsValid)
             {
                 ekran.CreatedDate = DateTime.Now;

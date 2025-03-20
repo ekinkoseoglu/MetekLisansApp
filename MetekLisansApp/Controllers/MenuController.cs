@@ -15,23 +15,32 @@ namespace MetekLisansApp.Controllers
                 _context = context;
             }
 
-            // GET: Menu/Create – Menü ekleme formu
             public IActionResult Create()
+        {
+            var userRole = HttpContext.Session.GetString("isAuthenticated");
+            if (userRole == null)
             {
-                return View();
+                return RedirectToAction("Login", "Account");
             }
 
-            // POST: Menu/Create – Formdan gelen verilerle menü ekleme işlemi
+            return View();
+            }
+
             [HttpPost]
             public async Task<IActionResult> Create(Menu menu)
+        {
+            var userRole = HttpContext.Session.GetString("isAuthenticated");
+            if (userRole == null)
             {
-                if (ModelState.IsValid)
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (ModelState.IsValid)
                 {
                     menu.CreatedDate = DateTime.Now;
                     menu.UpdatedDate = DateTime.Now;
                     _context.Menuler.Add(menu);
                     await _context.SaveChangesAsync();
-                    // Menü başarıyla eklendikten sonra formu temizleyip yeniden yükleyebilirsiniz.
                     return RedirectToAction("Create");
                 }
                 return View(menu);

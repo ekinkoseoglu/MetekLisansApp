@@ -11,24 +11,33 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using MetekLisansApp.Utility;
 
 namespace MetekLisansApp.Controllers
 {
     public class LisansController : Controller
     {
         private readonly ApplicationDbContext _context;
-        public LisansController(ApplicationDbContext context)
+        private readonly TokenHelper _tokenHelper;
+        public LisansController(ApplicationDbContext context, TokenHelper tokenHelper)
         {
             _context = context;
+            _tokenHelper = tokenHelper;
         }
 
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create()    
         {
+            var httpContext = HttpContext;
+           var isAuth = await _tokenHelper.CheckUserAuthhentication(httpContext);
+            if (!isAuth)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            var userRole = HttpContext.Session.GetString("UserRole");
+
             var firmalar = await _context.Firmalar.ToListAsync();
             var menuler = await _context.Menuler.OrderBy(m => m.SiraNo).ToListAsync();
             var ekranlar = await _context.Ekranlar.ToListAsync();
-
-            var userRole = HttpContext.Session.GetString("UserRole") ?? "User";
 
             var viewModel = new LisansCreateCompositeViewModel
             {
@@ -36,13 +45,21 @@ namespace MetekLisansApp.Controllers
                 Firmalar = firmalar,
                 Menuler = menuler,
                 Ekranlar = ekranlar,
-                IsReadOnly = userRole != "Admin" 
+                IsReadOnly = userRole != "Admin"
             };
             return View(viewModel);
         }
 
+        
+
         public async Task<IActionResult> Edit(int id)
         {
+            var httpContext = HttpContext;
+            var isAuth = await _tokenHelper.CheckUserAuthhentication(httpContext);
+            if (!isAuth)
+            {
+                return RedirectToAction("Login", "Account");
+            }
             var lisans = await _context.Lisanslar.FindAsync(id);
             if (lisans == null)
             {
@@ -91,6 +108,18 @@ namespace MetekLisansApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(LisansCreateCompositeViewModel model)
         {
+            var httpContext = HttpContext;
+            var isAuth = await _tokenHelper.CheckUserAuthhentication(httpContext);
+            if (!isAuth)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            var userRole = HttpContext.Session.GetString("UserRole");
+            if (userRole == null)
+            {
+                ModelState.AddModelError("", "Kullanıcı oturumu bulunamadı.");
+            }
+
             var input = model.Input;
             string ekranNoList = input.SelectedEkranNo != null ? string.Join(",", input.SelectedEkranNo) : "";
             var seciliDegerlerDto = new
@@ -129,28 +158,7 @@ namespace MetekLisansApp.Controllers
                 return RedirectToAction("Create");
             }
 
-            if (input.Id.HasValue)
-            {
-                var existingLisans = await _context.Lisanslar.FindAsync(input.Id.Value);
-                if (existingLisans == null)
-                {
-                    return NotFound();
-                }
-                existingLisans.FirmaAd = firma.Ad;
-                existingLisans.FirmaId = firma.Id;
-                existingLisans.LisansVerilmeTarih = DateTime.Now;
-                existingLisans.LisansBitisTarih = input.LisansBitisTarihi;
-                existingLisans.LisansKodu = dummyLisansKod;
-                existingLisans.OlusturanUserId = input.KullaniciId;
-                existingLisans.SeciliDegerler = jsonBody;
-
-                _context.Lisanslar.Update(existingLisans);
-                await _context.SaveChangesAsync();
-                TempData["LisansKodu"] = dummyLisansKod;
-                return RedirectToAction("Create");
-            }
-            else
-            {
+            
                 var lisans = new Lisans
                 {
                     FirmaAd = firma.Ad,
@@ -166,7 +174,7 @@ namespace MetekLisansApp.Controllers
                 await _context.SaveChangesAsync();
                 TempData["LisansKodu"] = dummyLisansKod;
                 return RedirectToAction("Create");
-            }
+           
         }
     }
 }

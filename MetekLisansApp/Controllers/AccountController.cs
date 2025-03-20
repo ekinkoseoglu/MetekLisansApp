@@ -1,4 +1,5 @@
 ﻿using MetekLisansApp.Data;
+using MetekLisansApp.Utility;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -7,9 +8,11 @@ namespace MetekLisansApp.Controllers
     public class AccountController : Controller
     {
         private readonly ApplicationDbContext _context;
-        public AccountController(ApplicationDbContext context)
+        private readonly TokenHelper _tokenHelper;
+        public AccountController(ApplicationDbContext context, TokenHelper tokenHelper)
         {
             _context = context;
+            _tokenHelper = tokenHelper;
         }
 
         public IActionResult Login()
@@ -24,9 +27,13 @@ namespace MetekLisansApp.Controllers
                .FirstOrDefault(k => k.KullaniciAdi == kullaniciAdi && k.Sifre == sifre);
             if (kullanici != null)
             {
-                // Oturum açıldıktan sonra hem KullaniciId hem de Role bilgisi session’a kaydediliyor
+                var token = _tokenHelper.GenerateToken(kullanici.KullaniciAdi, kullanici.Sifre);
+
                 HttpContext.Session.SetString("KullaniciId", kullanici.Id.ToString());
                 HttpContext.Session.SetString("UserRole", kullanici.Role);
+                HttpContext.Session.SetString("isAuthenticated", "1");
+                HttpContext.Session.SetString("userToken", token);
+
                 return Json(new
                 {
                     success = true,
@@ -40,6 +47,14 @@ namespace MetekLisansApp.Controllers
                 success = false,
                 message = "Kullanıcı adı veya şifre hatalı."
             });
+        }
+
+
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+
+            return RedirectToAction("Login", "Account");
         }
     }
 }

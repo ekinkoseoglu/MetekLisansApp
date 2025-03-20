@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using MetekLisansApp.Data;
+using MetekLisansApp.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddScoped<TokenHelper>(); // Add this line
 
 // Add services to the container
 builder.Services.AddControllersWithViews();
@@ -31,7 +33,6 @@ else
 {
     app.UseDeveloperExceptionPage();
 }
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
@@ -41,5 +42,4 @@ app.UseSession();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}");
-
 app.Run();
