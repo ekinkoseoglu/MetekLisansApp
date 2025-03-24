@@ -1,7 +1,6 @@
-﻿@model MetekLisansApp.Models.Entities.Firma
+﻿@model MetekLisansApp.Models.Entities.Menu
 @{
-    Layout = "_Layout";
-    ViewData["Title"] = "Firma Ekleme";
+    ViewData["Title"] = "Menu Ekle";
 }
 
 <!DOCTYPE html>
@@ -74,6 +73,7 @@
                 background: #138496;
                 transform: translateY(-2px);
             }
+
         .mb-4 {
             margin-bottom: 1.5rem;
         }
@@ -93,23 +93,17 @@
             <div class="col-lg-10">
                 <div class="license-card">
                     <div class="text-center mb-5">
-                        <h2 class="fw-bold mb-3">Firma Ekleme</h2>
+                        <h2 class="fw-bold mb-3">Menü Ekleme</h2>
                     </div>
                     <form asp-action="Create" method="post">
                         <div class="mb-4 position-relative">
-                            <input type="text" class="form-control" name="Ad" placeholder="Firma Adı" required />
+                            <input type="text" class="form-control" placeholder="Ad" name="Ad" required />
                         </div>
                         <div class="mb-4 position-relative">
-                            <input type="text" class="form-control" name="Kod" placeholder="Firma Kodu" required />
+                            <input type="number" class="form-control" placeholder="Sıra No" name="SiraNo" required />
                         </div>
-                        <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg px-5">
-                                Ekle
-                            </button>
-                            <a class="btn btn-info btn-lg px-5" href="@Url.Action("Create", "Lisans")">
-                                Lisans Oluştur
-                            </a>
-                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg px-5">
+                            Menu Ekle</button>
                     </form>
                 </div>
             </div>
@@ -117,3 +111,8 @@
     </div>
 </body>
 </html>
+
+@foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+{
+    <div class="text-danger">@error.ErrorMessage</div>
+}

@@ -1,4 +1,4 @@
-﻿using MetekLisansApp.Models;
+﻿using MetekLisansApp.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 

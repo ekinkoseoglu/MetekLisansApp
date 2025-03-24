@@ -1,8 +1,7 @@
-﻿@model IEnumerable<MetekLisansApp.Models.Lisans>
+﻿@model IEnumerable<MetekLisansApp.Models.ViewModels.LisansGecmisViewModel>
 @{
     ViewData["Title"] = "Lisans Geçmişi";
 }
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -140,17 +139,17 @@
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                        @foreach (var lisans in Model)
+                        @foreach (var item in Model)
                         {
                             <tr>
-                                <td>@lisans.FirmaAd</td>
-                                <td>@lisans.LisansVerilmeTarih.ToString("dd.MM.yyyy HH:mm")</td>
-                                <td>@lisans.LisansBitisTarih.ToString("dd.MM.yyyy HH:mm")</td>
-                                <td><code>@lisans.LisansKodu</code></td>
-                                <td>@lisans.OlusturanUserId</td>
+                                <td>@item.FirmaAd</td>
+                                <td>@item.Lisans.LisansVerilmeTarih.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td>@item.Lisans.LisansBitisTarih.ToString("dd.MM.yyyy HH:mm")</td>
+                                <td><code>@item.Lisans.LisansKodu</code></td>
+                                <td>@item.Lisans.OlusturanUserId</td>
                                 <td>
                                     <a class="btn btn-renew"
-                                       href="@Url.Action("Edit", "Lisans", new { id = lisans.Id })">
+                                       href="@Url.Action("Edit", "Lisans", new { id = item.Lisans.Id })">
                                         <i class="fas fa-sync-alt me-2"></i>Yenile
                                     </a>
                                 </td>

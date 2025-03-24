@@ -1,4 +1,4 @@
-namespace MetekLisansApp.Models
+namespace MetekLisansApp.Models.ViewModels
 {
     public class ErrorViewModel
     {

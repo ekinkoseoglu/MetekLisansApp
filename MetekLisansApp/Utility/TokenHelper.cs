@@ -7,14 +7,21 @@ namespace MetekLisansApp.Utility
     public class TokenHelper
     {
         private readonly ApplicationDbContext _context;
-
-        public TokenHelper(ApplicationDbContext dbContext)
+        //Import Configuration
+        private readonly IConfiguration _configuration;
+        public TokenHelper(ApplicationDbContext dbContext, IConfiguration configuration)
         {
             _context = dbContext;
+            _configuration = configuration;
         }
-        public  string GenerateToken(string username, string password)
+        public string GenerateToken(string username, string password)
         {
-            string secretKey = "metek_uzun_anahtar";
+            string? secretKey = _configuration["Secret-Token"];
+            if (string.IsNullOrEmpty(secretKey))
+            {
+                throw new InvalidOperationException("Secret key is not configured.");
+            }
+
             using (SHA256 sha256 = SHA256.Create())
             {
                 string tokenInput = username + password + secretKey;
@@ -25,26 +32,24 @@ namespace MetekLisansApp.Utility
 
         public  async Task<bool> CheckUserAuthhentication(HttpContext httpContext)
         {
-        
+            var sessionToken = httpContext.Session.GetString("userToken");
+            var kullaniciId = httpContext.Session.GetString("KullaniciId");
+            if (string.IsNullOrEmpty(kullaniciId))
+            {
+                return false;
+            }
 
-            //var sessionToken = httpContext.Session.GetString("userToken");
-            //var kullaniciId = httpContext.Session.GetString("KullaniciId");
-            //if (string.IsNullOrEmpty(kullaniciId))
-            //{
-            //    return false;
-            //}
+            var kullanici = await _context.Kullanicilar.FindAsync(Convert.ToInt32(kullaniciId));
+            if (kullanici == null)
+            {
+                return false;
+            }
 
-            //var kullanici = await _context.Kullanicilar.FindAsync(Convert.ToInt32(kullaniciId));
-            //if (kullanici == null)
-            //{
-            //    return false;
-            //}
-
-            //var generatedToken = GenerateToken(kullanici.KullaniciAdi, kullanici.Sifre);
-            //if (sessionToken != generatedToken)
-            //{
-            //    return false;
-            //}
+            var generatedToken = GenerateToken(kullanici.KullaniciAdi, kullanici.Sifre);
+            if (sessionToken != generatedToken)
+            {
+                return false;
+            }
 
             return true;
         }

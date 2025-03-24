@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace MetekLisansApp.Models
+namespace MetekLisansApp.Models.Entities
 {
     public class Ekran
     {

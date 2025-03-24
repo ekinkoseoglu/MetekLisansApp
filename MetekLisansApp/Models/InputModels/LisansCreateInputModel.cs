@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MetekLisansApp.Models
+namespace MetekLisansApp.Models.InputModels
 {
-    
+
     public class LisansCreateInputModel
     {
         public int? Id { get; set; }

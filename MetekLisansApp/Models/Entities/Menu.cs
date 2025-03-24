@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MetekLisansApp.Models
+namespace MetekLisansApp.Models.Entities
 {
     public class Menu
     {

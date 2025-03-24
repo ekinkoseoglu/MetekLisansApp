@@ -1,5 +1,7 @@
 ﻿using MetekLisansApp.Data;
-using MetekLisansApp.Models;
+using MetekLisansApp.Models.Entities;
+using MetekLisansApp.Utility;
+using MetekLisansApp.Utility.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -8,42 +10,35 @@ namespace MetekLisansApp.Controllers
     public class EkranController : Controller
     {
         private readonly ApplicationDbContext _context;
-        public EkranController(ApplicationDbContext context)
+        private readonly TokenHelper _tokenHelper;
+        public EkranController(ApplicationDbContext context,
+            TokenHelper tokenHelper)
         {
             _context = context;
+            _tokenHelper = tokenHelper;
         }
-
-        public IActionResult Create()
+        [Auth("Admin, Editor, User")]
+        public async Task<IActionResult> Index()
         {
-            var userRole = HttpContext.Session.GetString("isAuthenticated");
-            if (userRole == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
             ViewData["Menuler"] = _context.Menuler.OrderBy(m => m.Id).ToList();
             return View();
         }
 
         [HttpPost]
+        [Auth("Admin, Editor")]
         public async Task<IActionResult> Create(Ekran ekran)
         {
-            var userRole = HttpContext.Session.GetString("isAuthenticated");
-            if (userRole == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
+         
             if (ModelState.IsValid)
             {
                 ekran.CreatedDate = DateTime.Now;
                 ekran.UpdatedDate = DateTime.Now;
                 _context.Ekranlar.Add(ekran);
                 await _context.SaveChangesAsync();
-                return RedirectToAction("Create");
+                return RedirectToAction("Index");
             }
             ViewData["Menuler"] = _context.Menuler.OrderBy(m => m.SiraNo).ToList();
-            return View(ekran);
+            return View("Index",ekran);
         }
     }
 }

@@ -1,50 +1,43 @@
 ﻿using MetekLisansApp.Data;
-using MetekLisansApp.Models;
+using MetekLisansApp.Models.Entities;
+using MetekLisansApp.Utility;
 using Microsoft.AspNetCore.Mvc;
+using MetekLisansApp.Utility.Attributes;
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MetekLisansApp.Controllers
 {
-    
-        public class MenuController : Controller
+    public class MenuController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly TokenHelper _tokenHelper;
+        public MenuController(ApplicationDbContext context, TokenHelper tokenHelper)
         {
-            private readonly ApplicationDbContext _context;
-
-            public MenuController(ApplicationDbContext context)
-            {
-                _context = context;
-            }
-
-            public IActionResult Create()
-        {
-            var userRole = HttpContext.Session.GetString("isAuthenticated");
-            if (userRole == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            return View();
-            }
-
-            [HttpPost]
-            public async Task<IActionResult> Create(Menu menu)
-        {
-            var userRole = HttpContext.Session.GetString("isAuthenticated");
-            if (userRole == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
-            if (ModelState.IsValid)
-                {
-                    menu.CreatedDate = DateTime.Now;
-                    menu.UpdatedDate = DateTime.Now;
-                    _context.Menuler.Add(menu);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction("Create");
-                }
-                return View(menu);
-            }
+            _context = context;
+            _tokenHelper = tokenHelper;
         }
-    
+
+        [Auth("Admin, Editor, User")]
+        public async Task<IActionResult> Index()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Auth("Admin, Editor")]
+        public async Task<IActionResult> Create(Menu menu)
+        {
+            if (ModelState.IsValid)
+            {
+                menu.CreatedDate = DateTime.Now;
+                menu.UpdatedDate = DateTime.Now;
+                _context.Menuler.Add(menu);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index");
+            }
+            return View("Index", menu);
+        }
+    }
 }

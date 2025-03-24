@@ -1,11 +1,11 @@
 ﻿@using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
-@model MetekLisansApp.Models.LisansCreateCompositeViewModel
+@model MetekLisansApp.Models.ViewModels.LisansCreateCompositeViewModel
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Lisans Oluşturma";
-    var generatedLisansKodu = TempData["LisansKodu"] as string;
-    var input = Model.Input ?? new MetekLisansApp.Models.LisansCreateInputModel();
+    var generatedLisansKodu = Model.LisansKodu as string;
+    var input = Model.Input ?? new MetekLisansApp.Models.InputModels.LisansCreateInputModel();
     var readOnly = Model.IsReadOnly;
 }
 <!DOCTYPE html>
@@ -15,12 +15,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
     <style>
+        /* Stil tanımlamaları */
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 2rem 0;
         }
-
         .license-card {
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
@@ -28,18 +28,15 @@
             overflow: hidden;
             transition: transform 0.3s ease;
         }
-
         .form-control {
             height: 50px;
             border-radius: 10px;
             padding-left: 45px;
         }
-
-            .form-control:focus {
-                border-color: #7c4dff;
-                box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.25);
-            }
-
+        .form-control:focus {
+            border-color: #7c4dff;
+            box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.25);
+        }
         .input-icon {
             position: absolute;
             left: 15px;
@@ -48,7 +45,6 @@
             color: #6c757d;
             z-index: 5;
         }
-
         .btn-primary {
             background: #7c4dff;
             border: none;
@@ -57,20 +53,15 @@
             transition: all 0.3s ease;
             padding: 12px 30px;
         }
-
-            .btn-primary:hover {
-                background: #663dff;
-                transform: translateY(-2px);
-            }
-
+        .btn-primary:hover {
+            background: #663dff;
+            transform: translateY(-2px);
+        }
         .module-card {
             border: 2px solid #e9ecef;
             border-radius: 15px;
             transition: all 0.3s ease;
         }
-
-
-
         .alert-success {
             background: #d1e7dd;
             border-color: #badbcc;
@@ -80,7 +71,7 @@
     </style>
 </head>
 <body>
-<h2>Lisans Oluşturma</h2>
+    <h2>Lisans Oluşturma</h2>
     @if (!string.IsNullOrEmpty(generatedLisansKodu))
     {
         <div class="alert alert-success mb-4">
@@ -88,116 +79,100 @@
             Oluşturulan Lisans Kodu: <strong>@generatedLisansKodu</strong>
         </div>
     }
-<div>
-    <form asp-action="Create" method="post" id="lisanForm">
-        @if(input.Id.HasValue)
-        {
-            <input type="hidden" name="Input.Id" value="@input.Id" />
-        }
-        <input type="hidden" name="Input.KullaniciId" id="kullaniciIdInput" value="@input.KullaniciId" />
-
-        <div class="row g-4 mb-4">
-            <div class="col-md-4">
-                <div class="position-relative">
-                    <i class="fas fa-building input-icon"></i>
-                        <label for="FirmaId" class="form-label">Firma</label>
-                    <select class="form-select" name="Input.FirmaId" id="FirmaId" required @(readOnly
-                    ? "disabled" : "")>
-                        <option value="">Firma Seçiniz</option>
-                        @foreach (var firma in Model.Firmalar)
-                        {
-                            <option value="@firma.Id" selected="@(firma.Id == input.FirmaId ? "selected" : null)">
-                                @firma.Ad
-                            </option>
-                        }
-                    </select>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="position-relative">
-                    <i class="fas fa-microchip input-icon"></i>
-                        <label for="MachineCode" class="form-label">Makine Kodu</label>
-                    <input type="text" class="form-control" name="Input.MachineCode" id="MachineCode"
-                           value="@input.MachineCode" placeholder="Makine Kodu" required @(readOnly ? "readonly" : "") />
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="position-relative">
-                    <i class="fas fa-calendar-day input-icon"></i>
-                        <label for="LisansBitisTarihi" class="form-label">Lisans Bitiş Tarihi</label>
-                    <input type="date" class="form-control" name="Input.LisansBitisTarihi"
-                           value="@(input.LisansBitisTarihi != default(DateTime) ? input.LisansBitisTarihi.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd"))"
-                           id="LisansBitisTarihi" required @(readOnly ? "readonly" : "") />
-                </div>
-            </div>
-        </div>
-
-        <h5 class="mb-4 fw-bold"><i class="fas fa-cubes me-2"></i>Modül Seçimleri</h5>
-        <div class="row g-4">
-            @foreach (var menu in Model.Menuler)
+    <div>
+        <form asp-action="Create" method="post" id="lisanForm">
+            @if(input.Id.HasValue)
             {
-                <div class="col-lg-4 col-md-6">
-                    <div class="license-card p-3 h-100">
-                        <div class="mb-3">
-                            <h6 class="fw-bold mb-0">@menu.Ad</h6>
-                        </div>
-                        <div>
-                            @{
-                                var menuEkranlar = Model.Ekranlar.Where(e => e.MenuId == menu.Id).ToList();
-                            }
-                            @foreach (var ekran in menuEkranlar)
+                <input type="hidden" name="Input.Id" value="@input.Id" />
+            }
+            <input type="hidden" name="Input.KullaniciId" id="kullaniciIdInput" value="@input.KullaniciId" />
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="position-relative">
+                        <i class="fas fa-building input-icon"></i>
+                        <label for="FirmaId" class="form-label">Firma</label>
+                        <select class="form-select" name="Input.FirmaId" id="FirmaId" required @(readOnly ? "disabled" : "")>
+                            <option value="">Firma Seçiniz</option>
+                            @foreach (var firma in Model.Firmalar)
                             {
-                                var isChecked = input.SelectedEkranNo?.Contains(ekran.EkranNo) ?? false;
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox"
-                                           name="Input.SelectedEkranNo" value="@ekran.EkranNo"
-                                           id="ekran_@ekran.Id" @(isChecked ? "checked" : "") @(readOnly ? "disabled" : "") />
-                                    <label class="form-check-label" for="ekran_@ekran.Id">
-                                        @ekran.Ad <small class="text-muted">(@ekran.EkranNo)</small>
-                                    </label>
-                                </div>
+                                <option value="@firma.Id" selected="@(firma.Id == input.FirmaId ? "selected" : null)">
+                                    @firma.Ad
+                                </option>
                             }
-                        </div>
+                        </select>
                     </div>
                 </div>
-            }
-        </div>
+                <div class="col-md-4">
+                    <div class="position-relative">
+                        <i class="fas fa-microchip input-icon"></i>
+                        <label for="MachineCode" class="form-label">Makine Kodu</label>
+                        <input type="text" class="form-control" name="Input.MachineCode" id="MachineCode"
+                               value="@input.MachineCode" placeholder="Makine Kodu" required @(readOnly ? "readonly" : "") />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="position-relative">
+                        <i class="fas fa-calendar-day input-icon"></i>
+                        <label for="LisansBitisTarihi" class="form-label">Lisans Bitiş Tarihi</label>
+                        <input type="date" class="form-control" name="Input.LisansBitisTarihi"
+                               value="@(input.LisansBitisTarihi != default(DateTime) ? input.LisansBitisTarihi.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd"))"
+                               id="LisansBitisTarihi" required @(readOnly ? "readonly" : "") />
+                    </div>
+                </div>
+            </div>
 
-        <div class="text-center mt-5">
-            @if(!readOnly)
-            {
-                <button type="submit" class="btn btn-primary btn-lg px-5">
-                    <i class="fas fa-save me-2"></i>
-                    @(input.Id.HasValue ? "Güncelle" : "Oluştur")
-                </button>
-            }
-        </div>
-    </form>
-     @if (ViewData.ModelState.ErrorCount > 0)
-                    {
-                        <div class="alert alert-danger mt-4">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-exclamation-triangle me-2"></i>
-                                <div>
-                                    <h5 class="alert-heading mb-2">Hatalar</h5>
-                                    <ul class="mb-0 ps-3">
-                                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                                        {
-                                            <li>@error.ErrorMessage</li>
-                                        }
-                                    </ul>
-                                </div>
+            <h5 class="mb-4 fw-bold"><i class="fas fa-cubes me-2"></i>Modül Seçimleri</h5>
+            <div class="row g-4">
+                @foreach (var menu in Model.Menuler)
+                {
+                    <div class="col-lg-4 col-md-6">
+                        <div class="license-card p-3 h-100">
+                            <div class="mb-3">
+                                <h6 class="fw-bold mb-0">@menu.Ad</h6>
+                            </div>
+                            <div>
+                                @{
+                                    var menuEkranlar = Model.Ekranlar.Where(e => e.MenuId == menu.Id).ToList();
+                                }
+                                @foreach (var ekran in menuEkranlar)
+                                {
+                                    var isChecked = input.SelectedEkranNo?.Contains(ekran.EkranNo) ?? false;
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox"
+                                               name="Input.SelectedEkranNo" value="@ekran.EkranNo"
+                                               id="ekran_@ekran.Id" @(isChecked ? "checked" : "") @(readOnly ? "disabled" : "") />
+                                        <label class="form-check-label" for="ekran_@ekran.Id">
+                                            @ekran.Ad <small class="text-muted">(@ekran.EkranNo)</small>
+                                        </label>
+                                    </div>
+                                }
                             </div>
                         </div>
-                    }
-</div>
+                    </div>
+                }
+            </div>
 
-<script>
+            <div class="text-center mt-5">
+                @if(!readOnly)
+                {
+                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                        <i class="fas fa-save me-2"></i>
+                        @(input.Id.HasValue ? "Güncelle" : "Oluştur")
+                    </button>
+                }
+            </div>
+        </form>
+       
+          
+        
+    </div>
+
+    <script>
         var userId = '@Context.Session.GetString("KullaniciId")';
-    console.log(userId);
-    if (userId) {
-        document.getElementById("kullaniciIdInput").value = userId;
-    }
-</script>
+        console.log(userId);
+        if (userId) {
+            document.getElementById("kullaniciIdInput").value = userId;
+        }
+    </script>
 </body>
 </html>

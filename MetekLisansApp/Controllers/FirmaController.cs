@@ -1,6 +1,7 @@
 ﻿using MetekLisansApp.Data;
-using MetekLisansApp.Models;
+using MetekLisansApp.Models.Entities;
 using MetekLisansApp.Utility;
+using MetekLisansApp.Utility.Attributes;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
@@ -15,33 +16,16 @@ namespace MetekLisansApp.Controllers
             _context = context;
             _tokenHelper = tokenHelper;
         }
-
+        [Auth("Admin, Editor")]
         public async Task<IActionResult> Index()
         {
-            var httpContext = HttpContext;
-            var isAuth = await _tokenHelper.CheckUserAuthhentication(httpContext);
-            if (!isAuth)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-            var userRole = HttpContext.Session.GetString("isAuthenticated");
-            if (userRole == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
             return View();
         }
 
         [HttpPost]
+        [Auth("Admin, Editor")]
         public async Task<IActionResult> Create(Firma firma)
-        {
-            var httpContext = HttpContext;
-            var isAuth = await _tokenHelper.CheckUserAuthhentication(httpContext);
-            if (!isAuth)
-            {
-                return RedirectToAction("Login", "Account");
-            }
+        { 
             var userRole = HttpContext.Session.GetString("isAuthenticated");
             if (userRole == null)
             {

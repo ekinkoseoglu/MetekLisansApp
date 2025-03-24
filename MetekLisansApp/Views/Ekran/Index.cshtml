@@ -1,9 +1,8 @@
-﻿@model MetekLisansApp.Models.Entities.Firma
+﻿@model MetekLisansApp.Models.Entities.Ekran
 @{
-    Layout = "_Layout";
-    ViewData["Title"] = "Firma Ekleme";
+    ViewData["Title"] = "Ekran Ekle";
+    var menuler = ViewData["Menuler"] as List<MetekLisansApp.Models.Entities.Menu>;
 }
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -74,6 +73,7 @@
                 background: #138496;
                 transform: translateY(-2px);
             }
+
         .mb-4 {
             margin-bottom: 1.5rem;
         }
@@ -93,27 +93,38 @@
             <div class="col-lg-10">
                 <div class="license-card">
                     <div class="text-center mb-5">
-                        <h2 class="fw-bold mb-3">Firma Ekleme</h2>
+                        <h2 class="fw-bold mb-3">Ekran Ekle</h2>
                     </div>
                     <form asp-action="Create" method="post">
                         <div class="mb-4 position-relative">
-                            <input type="text" class="form-control" name="Ad" placeholder="Firma Adı" required />
+                            <input type="text" class="form-control" placeholder="Ad" name="Ad" required />
                         </div>
                         <div class="mb-4 position-relative">
-                            <input type="text" class="form-control" name="Kod" placeholder="Firma Kodu" required />
+
+                            <input type="number" class="form-control" placeholder="Ekran No" name="EkranNo" required />
                         </div>
-                        <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-primary btn-lg px-5">
-                                Ekle
-                            </button>
-                            <a class="btn btn-info btn-lg px-5" href="@Url.Action("Create", "Lisans")">
-                                Lisans Oluştur
-                            </a>
+                        <div class="mb-4 position-relative">
+                            <select class="form-control" name="MenuId" required>
+                                <option value="">Menü Seçiniz</option>
+                                @foreach (var menu in menuler)
+                                {
+                                    <option value="@menu.Id">@menu.Ad</option>
+                                }
+                            </select>
                         </div>
+                        <button type="submit" class="btn btn-primary btn-lg px-5">
+                            Ekran Ekle
+                        </button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+
+    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+    {
+        <div class="text-danger">@error.ErrorMessage</div>
+    }
 </body>
 </html>
+

@@ -2,6 +2,7 @@
 using MetekLisansApp.Utility;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 
 namespace MetekLisansApp.Controllers
 {
@@ -49,11 +50,9 @@ namespace MetekLisansApp.Controllers
             });
         }
 
-
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
-
             return RedirectToAction("Login", "Account");
         }
     }

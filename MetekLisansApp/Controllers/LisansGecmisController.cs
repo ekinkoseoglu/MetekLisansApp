@@ -5,6 +5,7 @@ using MetekLisansApp.Models;
 using System.Linq;
 using System.Threading.Tasks;
 using MetekLisansApp.Utility;
+using MetekLisansApp.Models.ViewModels;
 
 namespace MetekLisansApp.Controllers
 {
@@ -38,7 +39,18 @@ namespace MetekLisansApp.Controllers
                 .OrderByDescending(l => l.LisansVerilmeTarih)
                 .ToListAsync();
 
-            return View(lisanslar);
+            var firmaIds = lisanslar.Select(l => l.FirmaId).Distinct().ToList();
+            var firmalarDict = await _context.Firmalar
+                .Where(f => firmaIds.Contains(f.Id))
+                .ToDictionaryAsync(f => f.Id, f => f.Ad);
+
+            var viewModel = lisanslar.Select(l => new LisansGecmisViewModel
+            {
+                Lisans = l,
+                FirmaAd = firmalarDict.ContainsKey(l.FirmaId) ? firmalarDict[l.FirmaId] : ""
+            }).ToList();
+
+            return View(viewModel);
         }
     }
 }
