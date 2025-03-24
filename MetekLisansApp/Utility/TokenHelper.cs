@@ -29,7 +29,7 @@ namespace MetekLisansApp.Utility
                 return BitConverter.ToString(tokenBytes).Replace("-", "").ToLower();
             }
         }
-
+        
         public  async Task<bool> CheckUserAuthhentication(HttpContext httpContext)
         {
             var sessionToken = httpContext.Session.GetString("userToken");

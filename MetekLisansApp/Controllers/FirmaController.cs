@@ -17,7 +17,7 @@ namespace MetekLisansApp.Controllers
             _tokenHelper = tokenHelper;
         }
         [Auth("Admin, Editor")]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             return View();
         }

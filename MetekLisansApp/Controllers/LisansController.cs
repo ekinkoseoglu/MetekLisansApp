@@ -43,7 +43,7 @@ namespace MetekLisansApp.Controllers
                 Menuler = menuler,
                 Ekranlar = ekranlar,
                 IsReadOnly = userRole != "Admin",
-                LisansKodu = null
+                LisansKodu = string.Empty
             };
             return View(viewModel);
         }

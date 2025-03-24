@@ -18,7 +18,7 @@ namespace MetekLisansApp.Controllers
             _tokenHelper = tokenHelper;
         }
         [Auth("Admin, Editor, User")]
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             ViewData["Menuler"] = _context.Menuler.OrderBy(m => m.Id).ToList();
             return View();

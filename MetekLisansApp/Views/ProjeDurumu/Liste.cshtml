@@ -1,6 +1,6 @@
-﻿@model IEnumerable<MetekLisansApp.Models.ViewModels.LisansGecmisViewModel>
+﻿@model List<MetekLisansApp.Models.Entities.ProjeDurumu>
 @{
-    ViewData["Title"] = "Lisans Geçmişi";
+    ViewData["Title"] = "Proje Durumu Listesi";
 }
 <!DOCTYPE html>
 <html lang="tr">
@@ -64,18 +64,16 @@
                 top: 0;
             }
 
+
             .custom-table tbody tr {
                 background: white;
                 transition: all 0.3s ease;
-                border-radius: 10px;
+               
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                
             }
 
-                .custom-table tbody tr:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                }
-
+             
             .custom-table td {
                 padding: 1rem;
                 vertical-align: middle;
@@ -114,8 +112,8 @@
     <div class="container">
         <div class="history-card">
             <div class="text-center mb-5">
-                <h2 class="fw-bold mb-3">Lisans Geçmişi</h2>
-                <p class="text-muted">Oluşturulan tüm lisans kayıtları</p>
+                <h2 class="fw-bold mb-3">Proje Durumu Listesi</h2>
+                <p class="text-muted">Tüm proje durum kayıtları</p>
             </div>
 
             <div class="search-container">
@@ -131,29 +129,39 @@
                     <thead>
                         <tr>
                             <th>Firma Adı</th>
-                            <th>Oluşturulma Tarihi</th>
-                            <th>Bitiş Tarihi</th>
-                            <th>Lisans Kodu</th>
-                            <th>Oluşturan</th>
+                            <th>Statü</th>
+                            <th>Mevcut Lisans Tarihi</th>
+                            <th>Lisans Atansın mı?</th>
+                            <th>Lisans Süresi</th>
+                            <th>Bakım Anlaşması</th>
+                            <th>Bakım Paketi</th>
+                            <th>Bakım Söz. Bitiş</th>
+                            <th>Sahip</th>
+                            <th>Notlar</th>
                             <th>İşlemler</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                        @foreach (var item in Model)
+                        @if (Model != null && Model.Count > 0)
                         {
-                            <tr>
-                                <td>@item.FirmaAd</td>
-                                <td>@(item.Lisans.LisansVerilmeTarih != default(DateTime) ? item.Lisans.LisansVerilmeTarih.ToString("dd.MM.yyyy HH:mm") : DateTime.Now.ToString("yyyy-MM-dd"))</td>
-                                <td>@(item.Lisans.LisansBitisTarih != default(DateTime) ? item.Lisans.LisansBitisTarih.ToString("dd.MM.yyyy HH:mm") : "Süresiz")</td>
-                                <td><code>@item.Lisans.LisansKodu</code></td>
-                                <td>@item.Lisans.OlusturanUserId</td>
-                                <td>
-                                    <a class="btn btn-renew"
-                                       href="@Url.Action("Edit", "Lisans", new { id = item.Lisans.Id })">
-                                        <i class="fas fa-sync-alt me-2"></i>Yenile
-                                    </a>
-                                </td>
-                            </tr>
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@(item.Firma != null ? item.Firma.Ad : "")</td>
+                                    <td>@(item.Statu != null ? item.Statu.Ad : "")</td>
+                                    <td>@item.MevcutLisans.ToString("dd.MM.yyyy")</td>
+                                    <td>@(item.LisansAtansinmi ? "Evet" : "Hayır")</td>
+                                    <td>@(item.LisansSure != null ? item.LisansSure.Ad : "")</td>
+                                    <td>@(item.BakimAnlasmasi != null ? item.BakimAnlasmasi.Ad : "")</td>
+                                    <td>@(item.BakimPaketi != null ? item.BakimPaketi.Ad : "")</td>
+                                    <td>@item.BakimSozlesmeBitisTarihi.ToString("dd.MM.yyyy")</td>
+                                    <td>@(item.Sahip != null ? item.Sahip.Ad : "")</td>
+                                    <td>@item.Notlar</td>
+                                    <td>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Düzenle</a>
+                                    </td>
+                                </tr>
+                            }
                         }
                     </tbody>
                 </table>
@@ -163,7 +171,6 @@
                 </div>
 
                 <ul class="pagination" id="pagination"></ul>
-
             </div>
         </div>
     </div>
@@ -188,7 +195,7 @@
             function filterTable() {
                 const filter = searchInput.value.toLowerCase();
                 filteredData = rows.filter(row => {
-                    const firmName = row.cells[0].textContent.toLowerCase();
+                    const firmName = row.cells[1].textContent.toLowerCase();
                     return firmName.includes(filter);
                 });
 
@@ -206,7 +213,6 @@
                 paginatedItems.forEach(row => row.style.display = '');
 
                 noResults.style.display = filteredData.length > 0 ? 'none' : 'block';
-
                 updatePagination();
             }
 
