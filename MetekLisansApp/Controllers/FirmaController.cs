@@ -3,6 +3,7 @@ using MetekLisansApp.Models.Entities;
 using MetekLisansApp.Utility;
 using MetekLisansApp.Utility.Attributes;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 
 namespace MetekLisansApp.Controllers
@@ -16,29 +17,63 @@ namespace MetekLisansApp.Controllers
             _context = context;
             _tokenHelper = tokenHelper;
         }
-        [Auth("Admin, Editor")]
+        [Auth("Admin, Editor, User")]
         public IActionResult Index()
         {
             return View();
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Liste()
+        {
+            var firmalar = await _context.Firmalar.ToListAsync();
+            return Json(firmalar);
+        }
+
+        [Auth("Admin, Editor")]
+        public IActionResult Create()
+        {
+            return View(new Firma());
+        }
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         [Auth("Admin, Editor")]
         public async Task<IActionResult> Create(Firma firma)
-        { 
-            var userRole = HttpContext.Session.GetString("isAuthenticated");
-            if (userRole == null)
-            {
-                return RedirectToAction("Login", "Account");
-            }
-
+        {
             if (ModelState.IsValid)
             {
+    
                 _context.Firmalar.Add(firma);
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Index");
             }
-            return View("Index", firma);
+            return View(firma);
+        }
+
+        [Auth("Admin, Editor")]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var firma = await _context.Firmalar.FindAsync(id);
+            if (firma == null)
+            {
+                return NotFound();
+            }
+            return View("Create", firma);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Auth("Admin, Editor")]
+        public async Task<IActionResult> Edit(Firma firma)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Firmalar.Update(firma);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index");
+            }
+            return View("Create", firma);
         }
     }
 }

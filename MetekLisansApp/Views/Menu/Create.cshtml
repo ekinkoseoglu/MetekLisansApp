@@ -1,0 +1,89 @@
+﻿@model MetekLisansApp.Models.Entities.Menu
+@{
+    // Model.Id varsa düzenleme, yoksa yeni kayıt ekleme
+    ViewData["Title"] = Model.Id > 0 ? "Menü Düzenle" : "Menu Ekle";
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        .license-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            padding: 2rem;
+            max-width: 500px;
+            margin: auto;
+        }
+
+        .form-control {
+            height: 50px;
+            border-radius: 10px;
+            padding-left: 15px;
+            margin-bottom: 1rem;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: #7c4dff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            padding: 12px 30px;
+            width: 100%;
+        }
+
+            .btn-primary:hover {
+                background: #663dff;
+                transform: translateY(-2px);
+            }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-danger {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="license-card">
+        <div class="text-center">
+            <h2>@ViewData["Title"]</h2>
+        </div>
+        <form asp-action="@(Model.Id > 0 ? "Edit" : "Create")" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <div>
+                <input asp-for="Ad" type="text" class="form-control" placeholder="Ad" required />
+                <span asp-validation-for="Ad" class="text-danger"></span>
+            </div>
+            <div>
+                <input asp-for="SiraNo" type="number" class="form-control" placeholder="Sıra No" required />
+                <span asp-validation-for="SiraNo" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                @(Model.Id > 0 ? "Güncelle" : "Kayıt ol")
+            </button>
+        </form>
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <div class="text-danger">@error.ErrorMessage</div>
+        }
+    </div>
+</body>
+</html>

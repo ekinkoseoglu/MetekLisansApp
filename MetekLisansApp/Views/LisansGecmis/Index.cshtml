@@ -1,14 +1,11 @@
-﻿@model IEnumerable<MetekLisansApp.Models.ViewModels.LisansGecmisViewModel>
-@{
+﻿@{
     ViewData["Title"] = "Lisans Geçmişi";
 }
+@model IEnumerable<MetekLisansApp.Models.ViewModels.LisansGecmisViewModel>
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"]</title>
-    <link href="/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
     <style>
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -71,10 +68,7 @@
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
             }
 
-                .custom-table tbody tr:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-                }
+               
 
             .custom-table td {
                 padding: 1rem;
@@ -108,6 +102,7 @@
                 background: #e0a800;
                 transform: scale(1.05);
             }
+
     </style>
 </head>
 <body>
@@ -118,16 +113,8 @@
                 <p class="text-muted">Oluşturulan tüm lisans kayıtları</p>
             </div>
 
-            <div class="search-container">
-                <input type="text"
-                       class="search-input"
-                       id="searchInput"
-                       placeholder="Firma adına göre ara...">
-                <i class="fas fa-search search-icon"></i>
-            </div>
-
             <div class="table-responsive">
-                <table class="custom-table">
+                <table id="custom-table" class="custom-table">
                     <thead>
                         <tr>
                             <th>Firma Adı</th>
@@ -138,24 +125,7 @@
                             <th>İşlemler</th>
                         </tr>
                     </thead>
-                    <tbody id="tableBody">
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td>@item.FirmaAd</td>
-                                <td>@(item.Lisans.LisansVerilmeTarih != default(DateTime) ? item.Lisans.LisansVerilmeTarih.ToString("dd.MM.yyyy HH:mm") : DateTime.Now.ToString("yyyy-MM-dd"))</td>
-                                <td>@(item.Lisans.LisansBitisTarih != default(DateTime) ? item.Lisans.LisansBitisTarih.ToString("dd.MM.yyyy HH:mm") : "Süresiz")</td>
-                                <td><code>@item.Lisans.LisansKodu</code></td>
-                                <td>@item.Lisans.OlusturanUserId</td>
-                                <td>
-                                    <a class="btn btn-renew"
-                                       href="@Url.Action("Edit", "Lisans", new { id = item.Lisans.Id })">
-                                        <i class="fas fa-sync-alt me-2"></i>Yenile
-                                    </a>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
+                    <tbody></tbody>
                 </table>
                 <div class="no-results" id="noResults">
                     <i class="fas fa-search fa-2x mb-3"></i>
@@ -167,88 +137,56 @@
             </div>
         </div>
     </div>
+    <!-- DataTables  & Plugins -->
+    @section Scripts {
+        <script>
+            $(document).ready(function () {
+                $('#custom-table').DataTable({
+                     "responsive": true,
+                    "lengthChange": false,
+                    "autoWidth": false,
+                    "language": {
+                        "search": "Arama",
+                        "paginate": { "first": "İlk", "last": "Son", "next": "Sonraki", "previous": "Önceki" },
+                        "emptyTable": "Veri bulunamadı",
+                        "info": "_START_ ve _END_ arası kayıtlar. Toplam: _TOTAL_ kayıt.",
+                        "infoEmpty": "0 kayıt.",
+                        "infoFiltered": "(_MAX_ kayıt içinden filtrelendi.)",
+                        "zeroRecords": "Eşleşen veri bulunmamaktadır"
+                    },
+                    "ajax": {
+                        "url": "/LisansGecmis/GetList",
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchInput');
-            const tableBody = document.getElementById('tableBody');
-            const rows = Array.from(tableBody.getElementsByTagName('tr'));
-            const noResults = document.getElementById('noResults');
-            const pagination = document.getElementById('pagination');
+                        "dataSrc": ""
+                    },
+                                "columns": [
+                { "data": "firmaAd" },
+                {
+                    "data": "lisans.lisansVerilmeTarih",
+                    "render": function (data) {
+                        return new Date(data).toLocaleDateString('tr-TR');
+                    }
+                },
+                {
+                    "data": "lisans.lisansBitisTarih",
+                    "render": function (data) {
+                        return new Date(data).toLocaleDateString('tr-TR');
+                    }
+                },
+                { "data": "lisans.lisansKodu" },
+                { "data": "lisans.olusturanUserId" },
+                {
+                    "data": "lisans.id",
+                    "render": function (data) {
+                        return `<a href="/Lisans/Edit/${data}" class="btn btn-renew">Güncelle</a>`;
+                    }
+                }
+            ]
 
-            let currentPage = 1;
-            const itemsPerPage = 10;
-            let filteredData = [];
 
-            function initialize() {
-                filteredData = rows;
-                updateTable();
-            }
-
-            function filterTable() {
-                const filter = searchInput.value.toLowerCase();
-                filteredData = rows.filter(row => {
-                    const firmName = row.cells[0].textContent.toLowerCase();
-                    return firmName.includes(filter);
                 });
-
-                currentPage = 1;
-                updateTable();
-            }
-
-            function updateTable() {
-                rows.forEach(row => row.style.display = 'none');
-
-                const start = (currentPage - 1) * itemsPerPage;
-                const end = start + itemsPerPage;
-                const paginatedItems = filteredData.slice(start, end);
-
-                paginatedItems.forEach(row => row.style.display = '');
-
-                noResults.style.display = filteredData.length > 0 ? 'none' : 'block';
-
-                updatePagination();
-            }
-
-            function updatePagination() {
-                const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-                pagination.innerHTML = '';
-
-                pagination.appendChild(createPageItem('←', currentPage > 1 ? currentPage - 1 : null));
-
-                for(let i = 1; i <= totalPages; i++) {
-                    pagination.appendChild(createPageItem(i, i));
-                }
-
-                pagination.appendChild(createPageItem('→', currentPage < totalPages ? currentPage + 1 : null));
-            }
-
-            function createPageItem(text, page) {
-                const li = document.createElement('li');
-                li.className = 'page-item';
-
-                const a = document.createElement('a');
-                a.className = 'page-link' + (page === currentPage ? ' active' : '');
-                a.href = '#';
-                a.innerHTML = text;
-
-                if(page) {
-                    a.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        currentPage = page;
-                        updateTable();
-                    });
-                } else {
-                    a.classList.add('disabled');
-                }
-
-                li.appendChild(a);
-                return li;
-            }
-
-            searchInput.addEventListener('input', filterTable);
-            initialize();
-        });
-    </script>
+            });
+        </script>
+    }
 </body>
 </html>

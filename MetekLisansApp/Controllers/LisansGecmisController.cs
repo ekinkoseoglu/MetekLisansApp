@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MetekLisansApp.Utility;
 using MetekLisansApp.Models.ViewModels;
-
+using Microsoft.AspNetCore.Mvc.Core;
 namespace MetekLisansApp.Controllers
 {
     public class LisansGecmisController : Controller
@@ -51,6 +51,24 @@ namespace MetekLisansApp.Controllers
             }).ToList();
 
             return View(viewModel);
+        }
+
+        public async Task<IActionResult> GetList()
+        {
+            List<LisansGecmisViewModel> viewModel = new List<LisansGecmisViewModel>();
+            var lisanslar = await _context.Lisanslar
+                .OrderByDescending(l => l.LisansVerilmeTarih)
+                .ToListAsync();
+            var firmaIds = lisanslar.Select(l => l.FirmaId).Distinct().ToList();
+            var firmalarDict = await _context.Firmalar
+                .Where(f => firmaIds.Contains(f.Id))
+                .ToDictionaryAsync(f => f.Id, f => f.Ad);
+            viewModel = lisanslar.Select(l => new LisansGecmisViewModel
+            {
+                Lisans = l,
+                FirmaAd = firmalarDict.ContainsKey(l.FirmaId) ? firmalarDict[l.FirmaId] : ""
+            }).ToList();
+            return Json(viewModel);
         }
     }
 }

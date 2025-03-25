@@ -18,9 +18,13 @@ namespace MetekLisansApp.Controllers
         {
             _context = context;
         }
+        public IActionResult Index()
+        {
+            return View();
+        }
 
-        [HttpGet]
-        [Auth("Admin, Editor")]
+        //[HttpGet]
+        //[Auth("Admin, Editor")]
         public async Task<IActionResult> Liste(string firmaAd)
         {
             var query = _context.ProjeDurumu
@@ -50,7 +54,7 @@ namespace MetekLisansApp.Controllers
                 TotalCount = totalCount
             };
 
-            return View(projeDurumlari);
+            return Json(viewModel.ProjeDurumlari);
         }
 
         [HttpGet]
@@ -158,7 +162,7 @@ namespace MetekLisansApp.Controllers
                 ViewBag.SuccessMessage = "Proje durumu başarıyla oluşturuldu.";
             }
 
-            return RedirectToAction("Liste");
+            return RedirectToAction("Index");
         }
 
         private async Task<ProjeDurumuCreateViewModel> GetCreateViewModelAsync(ProjeDurumuCreateViewModel model)
