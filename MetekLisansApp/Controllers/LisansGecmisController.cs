@@ -29,11 +29,15 @@ namespace MetekLisansApp.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var userRole = HttpContext.Session.GetString("isAuthenticated");
-            if (userRole == null)
+            var isAuthenticated = HttpContext.Session.GetString("isAuthenticated");
+            if (isAuthenticated == null)
             {
                 return RedirectToAction("Login", "Account");
             }
+
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            ViewData["UserRole"] = userRole;
 
             var lisanslar = await _context.Lisanslar
                 .OrderByDescending(l => l.LisansVerilmeTarih)
